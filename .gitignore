@@ -1,0 +1,7 @@
+.env
+*.exe
+*.test
+/gt06-server
+/server/gt06-server
+vendor/
+.DS_Store

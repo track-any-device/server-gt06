@@ -119,14 +119,15 @@ func (h *Handler) handleLogin(ctx context.Context, s *session.Session, f *protoc
 	}
 
 	switch result {
-	case store.CheckAutoCreated, store.CheckNotApproved:
-		h.log.Warn("device not approved — rejecting",
-			zap.String("imei", info.IMEI),
-			zap.String("result", fmt.Sprintf("%d", result)),
-		)
+	case store.CheckBlocked:
+		h.log.Warn("device blocked — rejecting", zap.String("broadcast_id", info.IMEI))
 		h.metrics.LoginFailure.Inc()
 		time.AfterFunc(200*time.Millisecond, s.Close)
 		return
+	case store.CheckAutoCreated:
+		// New device: registered as pending (broadcast id only). Allow it to connect so
+		// realtime broadcasts flow; package-gt06 skips signal storage until activated.
+		h.log.Info("new device auto-created as pending — allowing", zap.String("broadcast_id", info.IMEI))
 	}
 
 	s.IMEI = info.IMEI

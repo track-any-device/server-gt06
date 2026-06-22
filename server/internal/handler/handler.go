@@ -154,6 +154,7 @@ func (h *Handler) handleHeartbeat(ctx context.Context, s *session.Session, f *pr
 		h.log.Debug("heartbeat ACK error", zap.String("imei", s.IMEI), zap.Error(err))
 	}
 	h.metrics.Heartbeats.Inc()
+	h.devices.RecordHeartbeat(ctx, s.IMEI)
 	h.log.Debug("heartbeat", zap.String("imei", s.IMEI))
 }
 
